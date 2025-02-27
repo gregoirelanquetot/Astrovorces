@@ -79,7 +79,7 @@ func match_salaries() -> Array:
 
 func match_birth_dates() -> Array:
 	var compatibility = []
-	if dob_man.text == "" or dob_woman.text == "":
+	if dob_man.text.lenght() != 10 or dob_woman.text.length() != 10:
 		print("missing birth date")
 		return compatibility
 	var date_man_full = dob_man.text
