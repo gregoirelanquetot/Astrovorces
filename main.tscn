@@ -245,38 +245,6 @@ visible = false
 layout_mode = 2
 value = 100.0
 
-[node name="MarriageDuration" type="VBoxContainer" parent="Control/VBoxContainer/HBoxContainer/Person2/DataVBox"]
-visible = false
-layout_mode = 2
-
-[node name="Label" type="Label" parent="Control/VBoxContainer/HBoxContainer/Person2/DataVBox/MarriageDuration"]
-layout_mode = 2
-text = "Durée du mariage"
-
-[node name="Input" type="SpinBox" parent="Control/VBoxContainer/HBoxContainer/Person2/DataVBox/MarriageDuration"]
-layout_mode = 2
-
-[node name="HSlider" type="HSlider" parent="Control/VBoxContainer/HBoxContainer/Person2/DataVBox/MarriageDuration"]
-visible = false
-layout_mode = 2
-value = 100.0
-
-[node name="ChildrenInMarriage" type="VBoxContainer" parent="Control/VBoxContainer/HBoxContainer/Person2/DataVBox"]
-visible = false
-layout_mode = 2
-
-[node name="Label" type="Label" parent="Control/VBoxContainer/HBoxContainer/Person2/DataVBox/ChildrenInMarriage"]
-layout_mode = 2
-text = "Enfants pendant le mariage"
-
-[node name="Input" type="SpinBox" parent="Control/VBoxContainer/HBoxContainer/Person2/DataVBox/ChildrenInMarriage"]
-layout_mode = 2
-
-[node name="HSlider" type="HSlider" parent="Control/VBoxContainer/HBoxContainer/Person2/DataVBox/ChildrenInMarriage"]
-visible = false
-layout_mode = 2
-value = 100.0
-
 [node name="Panel" type="Panel" parent="."]
 visible = false
 anchors_preset = 15

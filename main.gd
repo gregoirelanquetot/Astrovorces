@@ -50,6 +50,10 @@ func compute_rate() -> void:
 	print("ages: ", ages)
 	if not ages.is_empty():
 		computations.append(ages)
+	var duration = match_marriage_duration()
+	print("ages: ", ages)
+	if not duration.is_empty():
+		computations.append(duration)
 	for values in computations:
 		value += values[0]*values[1]
 		coeff += values[1]
@@ -145,14 +149,14 @@ func _on_man_married_yet_toggled(toggled_on: bool) -> void:
 	pass
 
 @onready var woman_age_at_marriage = $Control/VBoxContainer/HBoxContainer/Person2/DataVBox/AgeAtMarriage
-@onready var woman_marriage_duration = $Control/VBoxContainer/HBoxContainer/Person2/DataVBox/MarriageDuration
-@onready var woman_children_in_mariage = $Control/VBoxContainer/HBoxContainer/Person2/DataVBox/ChildrenInMarriage
+#@onready var woman_marriage_duration = $Control/VBoxContainer/HBoxContainer/Person2/DataVBox/MarriageDuration
+#@onready var woman_children_in_mariage = $Control/VBoxContainer/HBoxContainer/Person2/DataVBox/ChildrenInMarriage
 
 func _on_woman_married_yet_toggled(toggled_on: bool) -> void:
 	woman_married = toggled_on
 	woman_age_at_marriage.visible = toggled_on
-	woman_marriage_duration.visible = toggled_on
-	woman_children_in_mariage.visible = toggled_on
+	#woman_marriage_duration.visible = toggled_on
+	#woman_children_in_mariage.visible = toggled_on
 	pass
 
 
@@ -173,4 +177,22 @@ func match_marriage_age() -> Array:
 		pass
 	print("count: ", count)
 	compatibility = [count / curated_divorce_data.size(), age_inf.value / 100]
+	return compatibility
+
+
+@onready var duration_marriage = $Control/VBoxContainer/HBoxContainer/Person1/DataVBox/MarriageDuration/Input
+@onready var duration_inf = $Control/VBoxContainer/HBoxContainer/Person1/DataVBox/MarriageDuration/HSlider
+
+func match_marriage_duration() -> Array:
+	var compatibility: Array = []
+	if !man_married or !woman_married:
+		return compatibility
+	var duration = duration_marriage.value
+	var count = 0.0
+	for divorce in curated_divorce_data:
+		if int(divorce["Marriage_duration"]) > duration:
+			count += 1
+		pass
+	print("count: ", count)
+	compatibility = [count / curated_divorce_data.size(), duration_inf.value / 100]
 	return compatibility
