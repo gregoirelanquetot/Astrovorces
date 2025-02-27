@@ -51,9 +51,13 @@ func compute_rate() -> void:
 	if not ages.is_empty():
 		computations.append(ages)
 	var duration = match_marriage_duration()
-	print("ages: ", ages)
+	print("duration: ", duration)
 	if not duration.is_empty():
 		computations.append(duration)
+	var children = match_marriage_children()
+	print("children: ", children)
+	if not children.is_empty():
+		computations.append(children)
 	for values in computations:
 		value += values[0]*values[1]
 		coeff += values[1]
@@ -195,4 +199,22 @@ func match_marriage_duration() -> Array:
 		pass
 	print("count: ", count)
 	compatibility = [count / curated_divorce_data.size(), duration_inf.value / 100]
+	return compatibility
+
+
+@onready var children_marriage = $Control/VBoxContainer/HBoxContainer/Person1/DataVBox/ChildrenInMarriage/Input
+@onready var children_inf = $Control/VBoxContainer/HBoxContainer/Person1/DataVBox/ChildrenInMarriage/HSlider
+
+func match_marriage_children() -> Array:
+	var compatibility: Array = []
+	if !man_married or !woman_married:
+		return compatibility
+	var children = children_marriage.value
+	var count = 0.0
+	for divorce in curated_divorce_data:
+		if int(divorce["Num_Children"]) > children:
+			count += 1
+		pass
+	print("count children: ", count)
+	compatibility = [count / curated_divorce_data.size(), children_inf.value / 100]
 	return compatibility
