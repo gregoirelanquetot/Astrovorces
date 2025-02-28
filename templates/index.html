@@ -1,105 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Divorce Probability Calculator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 60%;
-        }
-        .form-container {
-            display: flex;
-            justify-content: space-between;
-        }
-        .column {
-            width: 45%;
-        }
-        label {
-            font-weight: bold;
-            display: block;
-            margin-top: 10px;
-        }
-        input, select {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
-            margin-top: 20px;
-            width: 100%;
-            padding: 10px;
-            border: none;
-            background-color: #007bff;
-            color: white;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Divorce Probability Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 80%;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #ffffff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    label {
+      font-size: 16px;
+      font-weight: bold;
+    }
+    input, select, button {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .result {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      color: #4CAF50;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Divorce Probability Calculator</h2>
-        <form method="POST">
-            <div class="form-container">
-                <div class="column">
-                    <h3>Man</h3>
-                    <label for="man_dob">Date of Birth</label>
-                    <input type="date" id="man_dob" name="man_dob" required>
-                    
-                    <label for="man_income">Monthly Income</label>
-                    <input type="number" id="man_income" name="man_income" required>
-                    
-                    <label for="man_age_marriage">Age at Marriage</label>
-                    <input type="number" id="man_age_marriage" name="man_age_marriage" required>
-                </div>
-                <div class="column">
-                    <h3>Woman</h3>
-                    <label for="woman_dob">Date of Birth</label>
-                    <input type="date" id="woman_dob" name="woman_dob" required>
-                    
-                    <label for="woman_income">Monthly Income</label>
-                    <input type="number" id="woman_income" name="woman_income" required>
-                    
-                    <label for="woman_age_marriage">Age at Marriage</label>
-                    <input type="number" id="woman_age_marriage" name="woman_age_marriage" required>
-                </div>
-            </div>
-            <div class="form-container">
-                <div class="column">
-                    <label for="marriage_duration">Marriage Duration (years)</label>
-                    <input type="number" id="marriage_duration" name="marriage_duration" required>
-                </div>
-                <div class="column">
-                    <label for="children">Number of Children</label>
-                    <input type="number" id="children" name="children" required>
-                </div>
-            </div>
-            <button type="submit">Calculate Probability</button>
-        </form>
-        {% if probability is not none %}
-            <h3>Divorce Probability: {{ probability }}%</h3>
-        {% endif %}
-    </div>
+  <div class="container">
+    <h1>Divorce Probability Calculator</h1>
+    <form method="POST">
+      <label for="income_man">Income of Partner Man:</label>
+      <input type="number" name="income_man" required><br>
+      
+      <label for="income_woman">Income of Partner Woman:</label>
+      <input type="number" name="income_woman" required><br>
+      
+      <label for="age_man">Age of Partner Man:</label>
+      <input type="number" name="age_man" required><br>
+      
+      <label for="age_woman">Age of Partner Woman:</label>
+      <input type="number" name="age_woman" required><br>
+      
+      <label for="education_man">Education Level of Partner Man:</label>
+      <select name="education_man" required>
+        <option value="PRIMARIA">Primary</option>
+        <option value="SECUNDARIA">Secondary</option>
+        <option value="PREPARATORIA">High School</option>
+        <option value="PROFESIONAL">Professional</option>
+      </select><br>
+      
+      <label for="education_woman">Education Level of Partner Woman:</label>
+      <select name="education_woman" required>
+        <option value="PRIMARIA">Primary</option>
+        <option value="SECUNDARIA">Secondary</option>
+        <option value="PREPARATORIA">High School</option>
+        <option value="PROFESIONAL">Professional</option>
+      </select><br>
+      
+      <label for="marriage_duration">Marriage Duration (Years):</label>
+      <input type="number" name="marriage_duration" required><br>
+      
+      <label for="children">Number of Children:</label>
+      <input type="number" name="children" required><br>
+      
+      <button type="submit">Calculate Divorce Probability</button>
+    </form>
+
+    {% if probability is not none %}
+      <div class="result">
+        Predicted Divorce Probability: {{ probability }}%
+      </div>
+    {% endif %}
+  </div>
 </body>
 </html>
