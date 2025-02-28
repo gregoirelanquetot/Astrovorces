@@ -1,34 +1,105 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Divorce Probability Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 60%;
+        }
+        .form-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .column {
+            width: 45%;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h2>Enter Your Details</h2>
-    <form method="post">
-        <label>Man's Date of Birth:</label>
-        <input type="text" name="dob_man" required><br>
-        
-        <label>Woman's Date of Birth:</label>
-        <input type="text" name="dob_woman" required><br>
-        
-        <label>Man's Monthly Income:</label>
-        <input type="number" name="income_man" required><br>
-        
-        <label>Woman's Monthly Income:</label>
-        <input type="number" name="income_woman" required><br>
-        
-        <label>Marriage Duration (years):</label>
-        <input type="number" name="marriage_duration" required><br>
-        
-        <label>Number of Children:</label>
-        <input type="number" name="children" required><br>
-        
-        <input type="submit" value="Calculate Probability">
-    </form>
-    
-    {% if probability is not none %}
-        <h3>Divorce Probability: {{ probability }}%</h3>
-    {% endif %}
+    <div class="container">
+        <h2>Divorce Probability Calculator</h2>
+        <form method="POST">
+            <div class="form-container">
+                <div class="column">
+                    <h3>Man</h3>
+                    <label for="man_dob">Date of Birth</label>
+                    <input type="date" id="man_dob" name="man_dob" required>
+                    
+                    <label for="man_income">Monthly Income</label>
+                    <input type="number" id="man_income" name="man_income" required>
+                    
+                    <label for="man_age_marriage">Age at Marriage</label>
+                    <input type="number" id="man_age_marriage" name="man_age_marriage" required>
+                </div>
+                <div class="column">
+                    <h3>Woman</h3>
+                    <label for="woman_dob">Date of Birth</label>
+                    <input type="date" id="woman_dob" name="woman_dob" required>
+                    
+                    <label for="woman_income">Monthly Income</label>
+                    <input type="number" id="woman_income" name="woman_income" required>
+                    
+                    <label for="woman_age_marriage">Age at Marriage</label>
+                    <input type="number" id="woman_age_marriage" name="woman_age_marriage" required>
+                </div>
+            </div>
+            <div class="form-container">
+                <div class="column">
+                    <label for="marriage_duration">Marriage Duration (years)</label>
+                    <input type="number" id="marriage_duration" name="marriage_duration" required>
+                </div>
+                <div class="column">
+                    <label for="children">Number of Children</label>
+                    <input type="number" id="children" name="children" required>
+                </div>
+            </div>
+            <button type="submit">Calculate Probability</button>
+        </form>
+        {% if probability is not none %}
+            <h3>Divorce Probability: {{ probability }}%</h3>
+        {% endif %}
+    </div>
 </body>
 </html>
