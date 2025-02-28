@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Divorce Probability Calculator</title>
+</head>
+<body>
+    <h2>Enter Your Details</h2>
+    <form method="post">
+        <label>Man's Date of Birth:</label>
+        <input type="text" name="dob_man" required><br>
+        
+        <label>Woman's Date of Birth:</label>
+        <input type="text" name="dob_woman" required><br>
+        
+        <label>Man's Monthly Income:</label>
+        <input type="number" name="income_man" required><br>
+        
+        <label>Woman's Monthly Income:</label>
+        <input type="number" name="income_woman" required><br>
+        
+        <label>Marriage Duration (years):</label>
+        <input type="number" name="marriage_duration" required><br>
+        
+        <label>Number of Children:</label>
+        <input type="number" name="children" required><br>
+        
+        <input type="submit" value="Calculate Probability">
+    </form>
+    
+    {% if probability is not none %}
+        <h3>Divorce Probability: {{ probability }}%</h3>
+    {% endif %}
+</body>
+</html>
