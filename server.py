@@ -1,93 +1,111 @@
-from flask import Flask, request, render_template
+from flask import Flask, render_template, request
 import pandas as pd
 import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.impute import SimpleImputer
 
+# Initialize Flask app
 app = Flask(__name__)
 
-# Load your datasets
-divorce_data = pd.read_csv("divorces_2000-2015_translated.csv").dropna()
-astro_data = pd.read_csv("Comp_matrix.csv").dropna()
 
-# Function to calculate zodiac sign
-def zodiac_sign(day, month):
-    zodiac_dates = [(20, "Capricorn", "Aquarius"), (19, "Aquarius", "Pisces"), (21, "Pisces", "Aries"),
-                    (20, "Aries", "Taurus"), (21, "Taurus", "Gemini"), (21, "Gemini", "Cancer"),
-                    (23, "Cancer", "Leo"), (23, "Leo", "Virgo"), (23, "Virgo", "Libra"),
-                    (23, "Libra", "Scorpio"), (22, "Scorpio", "Sagittarius"), (22, "Sagittarius", "Capricorn")]
-    return zodiac_dates[month - 1][1] if day < zodiac_dates[month - 1][0] else zodiac_dates[month - 1][2]
 
-# Function to compute divorce probability based on dataset
-def compute_divorce_probability(data):
-    relevant_data = divorce_data.copy()
-    
-    # Ensure all numeric columns are properly converted and handle errors
-    for col in ['Monthly_income_partner_man_peso', 'Monthly_income_partner_woman_peso', 'Marriage_duration', 'Num_Children']:
-        relevant_data[col] = pd.to_numeric(relevant_data[col], errors='coerce')
-    relevant_data = relevant_data.dropna()
-    
-    # Filter based on salary range
-    relevant_data = relevant_data[(relevant_data['Monthly_income_partner_man_peso'] <= data['income_man'] + 5000) &
-                                  (relevant_data['Monthly_income_partner_man_peso'] >= data['income_man'] - 5000) &
-                                  (relevant_data['Monthly_income_partner_woman_peso'] <= data['income_woman'] + 5000) &
-                                  (relevant_data['Monthly_income_partner_woman_peso'] >= data['income_woman'] - 5000)]
-    
-    # Filter based on marriage duration
-    relevant_data = relevant_data[relevant_data['Marriage_duration'] >= data['marriage_duration']]
-    
-    # Filter based on children
-    relevant_data = relevant_data[relevant_data['Num_Children'] == data['children']]
-    
-    # Calculate zodiac compatibility
-    man_zodiac = zodiac_sign(data['dob_man_day'], data['dob_man_month'])
-    woman_zodiac = zodiac_sign(data['dob_woman_day'], data['dob_woman_month'])
-    zodiac_combination = man_zodiac + woman_zodiac
-    compatibility_rate = astro_data[astro_data['Zodiac_combination'] == zodiac_combination]['Compatibility_rate'].values
-    compatibility_factor = 1 - (compatibility_rate[0] if len(compatibility_rate) > 0 else 0.5)
-    
-    # Compute probability
-    if not relevant_data.empty:
-        divorce_rate = relevant_data.shape[0] / divorce_data.shape[0] * 100
-        probability = divorce_rate * compatibility_factor
-    else:
-        probability = 50 * compatibility_factor  # Default value if no matching data
-    
-    return min(max(probability, 0), 100)  # Keep within 0-100%
 
-@app.route('/', methods=['GET', 'POST'])
+# Load the dataset
+divorce_data = pd.read_csv("divorces_2000-2015_translated.csv")
+
+# Handle infinite values
+divorce_data.replace([np.inf, -np.inf], np.nan, inplace=True)
+
+# Impute missing numerical values
+numerical_cols = ['Age_partner_man', 'Age_partner_woman', 'Monthly_income_partner_man_peso', 
+                  'Monthly_income_partner_woman_peso', 'Marriage_duration', 'Marriage_duration_months', 'Num_Children']
+imputer = SimpleImputer(strategy='mean')
+divorce_data[numerical_cols] = imputer.fit_transform(divorce_data[numerical_cols])
+
+# Impute missing categorical values (e.g., for education and employment status)
+categorical_cols = ['Level_of_education_partner_man', 'Level_of_education_partner_woman', 
+                    'Employment_status_partner_man', 'Employment_status_partner_woman']
+categorical_imputer = SimpleImputer(strategy='most_frequent')
+divorce_data[categorical_cols] = categorical_imputer.fit_transform(divorce_data[categorical_cols])
+
+divorce_data.dropna(subset = ['DOB_partner_man', 'DOB_partner_woman'], inplace=True)
+
+# Preprocess Data (same as before)
+divorce_data['Income_diff'] = abs(divorce_data['Monthly_income_partner_man_peso'] - divorce_data['Monthly_income_partner_woman_peso'])
+divorce_data['Age_gap'] = abs(divorce_data['Age_partner_man'] - divorce_data['Age_partner_woman'])
+
+# Convert Education Level to Numeric
+education_map = {'PRIMARIA': 1, 'SECUNDARIA': 2, 'PREPARATORIA': 3, 'PROFESIONAL': 4}
+divorce_data['Education_man'] = divorce_data['Level_of_education_partner_man'].map(education_map)
+divorce_data['Education_woman'] = divorce_data['Level_of_education_partner_woman'].map(education_map)
+
+# Create Feature Matrix (X) and Target Vector (y)
+X = divorce_data[['Income_diff', 'Age_gap', 'Marriage_duration', 'Num_Children', 'Education_man', 'Education_woman']]
+y = divorce_data['Type_of_divorce'].apply(lambda x: 1 if x == 'Necesario' else 0)  # Divorce = 1, No Divorce = 0
+
+# Handle any potential infinite or NaN values in X
+X = X.replace([np.inf, -np.inf], np.nan)
+X = X.fillna(X.mean())  # Replace NaN with the mean of each column
+
+# Normalize Features
+scaler = MinMaxScaler()
+X_normalized = scaler.fit_transform(X)
+
+# Check for NaN or infinite values after scaling
+if np.any(np.isnan(X_normalized)) or np.any(np.isinf(X_normalized)):
+    print("Warning: NaN or infinite values found in X_normalized")
+
+# Train Random Forest Classifier
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_normalized, y)
+
+# Predict Divorce Probability
+def predict_divorce_probability(data):
+    features = np.array([
+        abs(data['income_man'] - data['income_woman']),
+        abs(data['age_man'] - data['age_woman']),
+        data['marriage_duration'],
+        data['children'],
+        education_map.get(data['education_man'], 0),
+        education_map.get(data['education_woman'], 0)
+    ]).reshape(1, -1)
+
+    # Normalize and Predict
+    features_normalized = scaler.transform(features)
+    probability = model.predict_proba(features_normalized)[0][1] * 100  # Probability of Divorce
+    return round(min(max(probability, 0), 100), 2)  # Keep within 0-100%
+
+@app.route("/", methods=["GET", "POST"])
 def index():
-    if request.method == 'POST':
-        try:
-            # Correctly extract day and month from the date input
-            dob_man = request.form['man_dob'].split('-')  # Splitting "YYYY-MM-DD"
-            dob_woman = request.form['woman_dob'].split('-')  # Splitting "YYYY-MM-DD"
-            
-            dob_man_day = int(dob_man[2])  # Day from "YYYY-MM-DD"
-            dob_man_month = int(dob_man[1])  # Month from "YYYY-MM-DD"
-            
-            dob_woman_day = int(dob_woman[2])  # Day from "YYYY-MM-DD"
-            dob_woman_month = int(dob_woman[1])  # Month from "YYYY-MM-DD"
-            
-            # Extract other form data
-            data = {
-                'dob_man_day': dob_man_day,
-                'dob_man_month': dob_man_month,
-                'dob_woman_day': dob_woman_day,
-                'dob_woman_month': dob_woman_month,
-                'income_man': int(request.form['man_income']),
-                'income_woman': int(request.form['woman_income']),
-                'marriage_duration': int(request.form['marriage_duration']),
-                'children': int(request.form['children'])
-            }
-            
-            # Calculate the divorce probability
-            probability = compute_divorce_probability(data)
-        except (ValueError, KeyError) as e:
-            probability = "Invalid input, please check your values."
-            print(e)
-        
-        return render_template('index.html', probability=probability)
-    
-    return render_template('index.html', probability=None)
+    if request.method == "POST":
+        # Get input data from the form
+        income_man = int(request.form['income_man'])
+        income_woman = int(request.form['income_woman'])
+        age_man = int(request.form['age_man'])
+        age_woman = int(request.form['age_woman'])
+        education_man = request.form['education_man']
+        education_woman = request.form['education_woman']
+        marriage_duration = int(request.form['marriage_duration'])
+        children = int(request.form['children'])
 
-if __name__ == '__main__':
+        # Prepare data for prediction
+        data = {
+            'income_man': income_man,
+            'income_woman': income_woman,
+            'age_man': age_man,
+            'age_woman': age_woman,
+            'education_man': education_man,
+            'education_woman': education_woman,
+            'marriage_duration': marriage_duration,
+            'children': children
+        }
+
+        # Predict divorce probability
+        probability = predict_divorce_probability(data)
+        return render_template("index.html", probability=probability)
+
+    return render_template("index.html", probability=None)
+
+if __name__ == "__main__":
     app.run(debug=True)
