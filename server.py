@@ -4,6 +4,7 @@ import numpy as np
 
 app = Flask(__name__)
 
+# Load your datasets
 divorce_data = pd.read_csv("divorces_2000-2015_translated.csv").dropna()
 astro_data = pd.read_csv("Comp_matrix.csv").dropna()
 
@@ -56,23 +57,36 @@ def compute_divorce_probability(data):
 def index():
     if request.method == 'POST':
         try:
-            dob_man_day, dob_man_month = map(int, request.form['dob_man'].split('/'))
-            dob_woman_day, dob_woman_month = map(int, request.form['dob_woman'].split('/'))
+            # Correctly extract day and month from the date input
+            dob_man = request.form['man_dob'].split('-')  # Splitting "YYYY-MM-DD"
+            dob_woman = request.form['woman_dob'].split('-')  # Splitting "YYYY-MM-DD"
             
+            dob_man_day = int(dob_man[2])  # Day from "YYYY-MM-DD"
+            dob_man_month = int(dob_man[1])  # Month from "YYYY-MM-DD"
+            
+            dob_woman_day = int(dob_woman[2])  # Day from "YYYY-MM-DD"
+            dob_woman_month = int(dob_woman[1])  # Month from "YYYY-MM-DD"
+            
+            # Extract other form data
             data = {
                 'dob_man_day': dob_man_day,
                 'dob_man_month': dob_man_month,
                 'dob_woman_day': dob_woman_day,
                 'dob_woman_month': dob_woman_month,
-                'income_man': int(request.form['income_man']),
-                'income_woman': int(request.form['income_woman']),
+                'income_man': int(request.form['man_income']),
+                'income_woman': int(request.form['woman_income']),
                 'marriage_duration': int(request.form['marriage_duration']),
                 'children': int(request.form['children'])
             }
+            
+            # Calculate the divorce probability
             probability = compute_divorce_probability(data)
-        except (ValueError, KeyError):
+        except (ValueError, KeyError) as e:
             probability = "Invalid input, please check your values."
+            print(e)
+        
         return render_template('index.html', probability=probability)
+    
     return render_template('index.html', probability=None)
 
 if __name__ == '__main__':
